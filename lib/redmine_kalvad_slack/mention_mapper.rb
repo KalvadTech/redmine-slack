@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module KalvadSlack
+module RedmineKalvadSlack
   module MentionMapper
     LOGIN_RE = /(?<![A-Za-z0-9_])@([A-Za-z0-9][A-Za-z0-9._-]*)/
 

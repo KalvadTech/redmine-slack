@@ -18,12 +18,12 @@ class KalvadSlackMentionMapperTest < RedmineKalvadSlack::TestCase
   end
 
   def test_transforms_known_login
-    out = KalvadSlack::MentionMapper.transform("hello @#{@user.login} bye", @project)
+    out = RedmineKalvadSlack::MentionMapper.transform("hello @#{@user.login} bye", @project)
     assert_includes out, '<@U999ABC>'
   end
 
   def test_keeps_unknown_login
-    out = KalvadSlack::MentionMapper.transform('hello @ghost', @project)
+    out = RedmineKalvadSlack::MentionMapper.transform('hello @ghost', @project)
     assert_includes out, '@ghost'
     refute_includes out, '<@'
   end
@@ -31,12 +31,12 @@ class KalvadSlackMentionMapperTest < RedmineKalvadSlack::TestCase
   def test_skips_when_disabled
     Setting.send('plugin_redmine_kalvad_slack=',
                  Setting.send('plugin_redmine_kalvad_slack').merge('auto_mentions' => '0'))
-    out = KalvadSlack::MentionMapper.transform("hi @#{@user.login}", @project)
+    out = RedmineKalvadSlack::MentionMapper.transform("hi @#{@user.login}", @project)
     assert_includes out, "@#{@user.login}"
   end
 
   def test_keyword_hits
-    hits = KalvadSlack::MentionMapper.keyword_hits('this is urgent and @channel here', @project)
+    hits = RedmineKalvadSlack::MentionMapper.keyword_hits('this is urgent and @channel here', @project)
     assert_includes hits, 'urgent'
     assert_includes hits, '@channel'
   end

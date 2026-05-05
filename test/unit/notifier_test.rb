@@ -23,14 +23,14 @@ class KalvadSlackNotifierTest < RedmineKalvadSlack::TestCase
     Setting.send('plugin_redmine_kalvad_slack=',
                  Setting.send('plugin_redmine_kalvad_slack').merge('enabled' => '0'))
     Net::HTTP.stub :new, ->(*) { raise 'must not be called' } do
-      KalvadSlack::Notifier.deliver(project: @project, payload: { text: 'x' })
+      RedmineKalvadSlack::Notifier.deliver(project: @project, payload: { text: 'x' })
     end
   end
 
   def test_does_nothing_when_channel_is_dash
     KalvadSlackSetting.create!(project_id: @project.id, channel: '-')
     Net::HTTP.stub :new, ->(*) { raise 'must not be called' } do
-      KalvadSlack::Notifier.deliver(project: @project, payload: { text: 'x' })
+      RedmineKalvadSlack::Notifier.deliver(project: @project, payload: { text: 'x' })
     end
   end
 
@@ -44,7 +44,7 @@ class KalvadSlackNotifierTest < RedmineKalvadSlack::TestCase
 
     Net::HTTP.stub :new, fake_http do
       assert_nothing_raised do
-        KalvadSlack::Notifier.deliver(project: @project, payload: { text: 'x' })
+        RedmineKalvadSlack::Notifier.deliver(project: @project, payload: { text: 'x' })
       end
     end
   end

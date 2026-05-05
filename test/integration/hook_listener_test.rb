@@ -20,21 +20,21 @@ class KalvadSlackHookListenerTest < Redmine::IntegrationTest
                  'connect_timeout' => '3',
                  'read_timeout' => '3')
     @calls = []
-    KalvadSlack::Notifier.singleton_class.alias_method :__orig_deliver, :deliver
-    KalvadSlack::Notifier.singleton_class.send(:define_method, :deliver) do |project:, payload:|
+    RedmineKalvadSlack::Notifier.singleton_class.alias_method :__orig_deliver, :deliver
+    RedmineKalvadSlack::Notifier.singleton_class.send(:define_method, :deliver) do |project:, payload:|
       @calls << [project, payload]
     end
-    KalvadSlack::Notifier.instance_variable_set(:@calls, @calls)
+    RedmineKalvadSlack::Notifier.instance_variable_set(:@calls, @calls)
   end
 
   def teardown
-    KalvadSlack::Notifier.singleton_class.alias_method :deliver, :__orig_deliver
+    RedmineKalvadSlack::Notifier.singleton_class.alias_method :deliver, :__orig_deliver
   end
 
   def test_issue_create_triggers_notifier
     issue = Issue.new(project_id: 1, tracker_id: 1, status_id: 1, priority_id: 5,
                       author_id: 2, subject: 'Hook test', description: 'd')
     assert issue.save
-    assert_operator KalvadSlack::Notifier.instance_variable_get(:@calls).size, :>=, 1
+    assert_operator RedmineKalvadSlack::Notifier.instance_variable_get(:@calls).size, :>=, 1
   end
 end

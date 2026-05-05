@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module KalvadSlack
+module RedmineKalvadSlack
   class Notifier
     SUCCESS_CLASSES = [Net::HTTPSuccess, Net::HTTPRedirection].freeze
     DEFAULT_TIMEOUT = 3

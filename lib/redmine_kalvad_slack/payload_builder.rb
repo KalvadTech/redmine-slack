@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module KalvadSlack
+module RedmineKalvadSlack
   module PayloadBuilder
     SLACK_ESCAPES = { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.freeze
 

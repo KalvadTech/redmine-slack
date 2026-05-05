@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module KalvadSlack
+module RedmineKalvadSlack
   module SettingsResolver
     PLUGIN_ID = 'redmine_kalvad_slack'
 

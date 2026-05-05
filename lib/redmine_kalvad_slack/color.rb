@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module KalvadSlack
+module RedmineKalvadSlack
   module Color
     CREATED = '#36a64f'
     UPDATED = '#3aa3e3'

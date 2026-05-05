@@ -34,17 +34,6 @@ module RedmineKalvadSlack
 
   class << self
     def setup!
-      require_relative 'redmine_kalvad_slack/color'
-      require_relative 'redmine_kalvad_slack/settings_resolver'
-      require_relative 'redmine_kalvad_slack/mention_mapper'
-      require_relative 'redmine_kalvad_slack/payload_builder'
-      require_relative 'redmine_kalvad_slack/notifier'
-      require_relative 'redmine_kalvad_slack/patches/issue_patch'
-      require_relative 'redmine_kalvad_slack/patches/wiki_page_patch'
-      require_relative 'redmine_kalvad_slack/patches/news_patch'
-      require_relative 'redmine_kalvad_slack/patches/project_patch'
-      require_relative 'redmine_kalvad_slack/patches/projects_helper_patch'
-
       Issue.prepend(Patches::IssuePatch) unless Issue.include?(Patches::IssuePatch)
       WikiPage.prepend(Patches::WikiPagePatch) unless WikiPage.include?(Patches::WikiPagePatch)
       News.prepend(Patches::NewsPatch) unless News.include?(Patches::NewsPatch)

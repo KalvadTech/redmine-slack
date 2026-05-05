@@ -16,6 +16,8 @@ Redmine::Plugin.register :redmine_kalvad_slack do
              require: :member
 end
 
-Rails.application.config.to_prepare do
+RedmineKalvadSlack.setup!
+
+Rails.application.reloader.to_prepare do
   RedmineKalvadSlack.setup!
 end

@@ -4,155 +4,6 @@ module RedmineKalvadSlack
   module PayloadBuilder
     SLACK_ESCAPES = { '&' => '&amp;', '<' => '&lt;', '>' => '&gt;' }.freeze
 
-    module_function
-
-    def issue_created(issue)
-      project = issue.project
-      url = url_for_issue(issue)
-
-      attachment = {
-        color: Color::CREATED,
-        title: "#{issue.tracker.name} ##{issue.id}: #{issue.subject}",
-        title_link: url,
-        fields: issue_fields(issue),
-        footer: escape(project.name),
-        ts: issue.created_on.to_i
-      }
-      if SettingsResolver.bool?(project, :display_description_on_create) && issue.description.present?
-        attachment[:text] = MentionMapper.transform(escape(issue.description), project)
-      end
-
-      append_keyword_mentions!(attachment, issue.description.to_s, project)
-
-      {
-        text: "[#{project_link(project)}] #{slack_link(url, "##{issue.id}")} " \
-              "#{l(:label_kalvad_slack_issue_created)} #{escape(issue.author.name)}",
-        attachments: [attachment]
-      }
-    end
-
-    def issue_updated(issue, journal, color: Color::UPDATED, label_key: :label_kalvad_slack_issue_updated)
-      project = issue.project
-      url = url_for_issue(issue, journal)
-
-      attachment = {
-        color: color,
-        title: "#{issue.tracker.name} ##{issue.id}: #{issue.subject}",
-        title_link: url,
-        fields: journal_fields(journal),
-        footer: escape(project.name),
-        ts: journal_timestamp(journal)
-      }
-      note_text = note_text(journal, project)
-      attachment[:text] = note_text if note_text.present?
-
-      append_keyword_mentions!(attachment, journal.notes.to_s, project)
-
-      {
-        text: "[#{project_link(project)}] #{slack_link(url, "##{issue.id}")} " \
-              "#{l(label_key)} #{escape(journal.user&.name.to_s)}",
-        attachments: [attachment]
-      }
-    end
-
-    def issue_closed(issue, journal)
-      issue_updated(issue, journal,
-                    color: Color::CLOSED,
-                    label_key: :label_kalvad_slack_issue_closed)
-    end
-
-    def wiki_created(page)
-      wiki_payload(page, color: Color::WIKI, label_key: :label_kalvad_slack_wiki_created)
-    end
-
-    def wiki_updated(page)
-      wiki_payload(page, color: Color::WIKI, label_key: :label_kalvad_slack_wiki_updated)
-    end
-
-    def news_created(news)
-      project = news.project
-      url = url_for_news(news)
-
-      attachment = {
-        color: Color::NEWS,
-        title: news.title,
-        title_link: url,
-        text: MentionMapper.transform(escape(news.summary.presence || news.description.to_s), project),
-        footer: escape(project.name),
-        ts: news.created_on.to_i
-      }
-
-      append_keyword_mentions!(attachment, news.description.to_s, project)
-
-      {
-        text: "[#{project_link(project)}] #{slack_link(url, escape(news.title))} " \
-              "#{l(:label_kalvad_slack_news_created)} #{escape(news.author&.name.to_s)}",
-        attachments: [attachment]
-      }
-    end
-
-    # ---- helpers ----
-
-    def wiki_payload(page, color:, label_key:)
-      project = page.project
-      url = url_for_wiki(page)
-
-      attachment = {
-        color: color,
-        title: page.title,
-        title_link: url,
-        footer: escape(project.name),
-        ts: (page.updated_on || page.created_on).to_i
-      }
-
-      {
-        text: "[#{project_link(project)}] #{slack_link(url, escape(page.title))} " \
-              "#{l(label_key)} #{escape((page.content&.author || page.last_author)&.name.to_s)}",
-        attachments: [attachment]
-      }
-    end
-
-    def issue_fields(issue)
-      fields = [
-        { title: l(:field_tracker),     value: escape(issue.tracker.name),  short: true },
-        { title: l(:field_status),      value: escape(issue.status.name),   short: true },
-        { title: l(:field_priority),    value: escape(issue.priority.name), short: true },
-        { title: l(:field_assigned_to), value: assignee_value(issue),       short: true },
-        { title: l(:field_author),      value: escape(issue.author.name),   short: true }
-      ]
-      if SettingsResolver.bool?(issue.project, :display_watchers) && issue.watcher_users.any?
-        fields << {
-          title: l(:field_watcher),
-          value: escape(issue.watcher_users.map(&:name).join(', ')),
-          short: false
-        }
-      end
-      fields
-    end
-
-    def journal_fields(journal)
-      details = journal.visible_details(User.current)
-      details.filter_map { |detail| detail_field(journal, detail) }
-    end
-
-    def detail_field(journal, detail)
-      case detail.property
-      when 'attr'
-        attr_field(journal, detail)
-      when 'attachment'
-        attachment_field(detail)
-      when 'cf'
-        cf_field(journal, detail)
-      end
-    end
-
-    def attr_field(_journal, detail)
-      label = attr_label(detail.prop_key)
-      old_v = attr_format(detail.prop_key, detail.old_value)
-      new_v = attr_format(detail.prop_key, detail.value)
-      { title: escape(label), value: format_change(old_v, new_v), short: true }
-    end
-
     ATTR_LABELS = {
       'subject' => :field_subject,
       'description' => :field_description,
@@ -171,11 +22,6 @@ module RedmineKalvadSlack
       'is_private' => :field_is_private
     }.freeze
 
-    def attr_label(prop_key)
-      key = ATTR_LABELS[prop_key.to_s]
-      key ? l(key) : prop_key.to_s.humanize
-    end
-
     ATTR_FINDERS = {
       'status_id' => IssueStatus,
       'priority_id' => IssuePriority,
@@ -186,6 +32,155 @@ module RedmineKalvadSlack
       'project_id' => Project
     }.freeze
 
+    module_function
+
+    def issue_created(issue, setting)
+      project = issue.project
+      url = url_for_issue(issue)
+
+      attachment = {
+        color: Color::CREATED,
+        title: "#{issue.tracker.name} ##{issue.id}: #{issue.subject}",
+        title_link: url,
+        fields: issue_fields(issue, setting),
+        footer: escape(project.name),
+        ts: issue.created_on.to_i
+      }
+      if setting.display_description_on_create? && issue.description.present?
+        attachment[:text] = escape(issue.description)
+      end
+
+      {
+        text: "[#{project_link(project)}] #{slack_link(url, "##{issue.id}")} " \
+              "#{l(:label_kalvad_slack_issue_created)} #{escape(issue.author.name)}",
+        attachments: [attachment]
+      }
+    end
+
+    def issue_updated(issue, journal, setting,
+                      color: Color::UPDATED, label_key: :label_kalvad_slack_issue_updated)
+      project = issue.project
+      url = url_for_issue(issue, journal)
+
+      attachment = {
+        color: color,
+        title: "#{issue.tracker.name} ##{issue.id}: #{issue.subject}",
+        title_link: url,
+        fields: journal_fields(journal),
+        footer: escape(project.name),
+        ts: journal_timestamp(journal)
+      }
+      note = note_text(journal, setting)
+      attachment[:text] = note if note.present?
+
+      {
+        text: "[#{project_link(project)}] #{slack_link(url, "##{issue.id}")} " \
+              "#{l(label_key)} #{escape(journal.user&.name.to_s)}",
+        attachments: [attachment]
+      }
+    end
+
+    def issue_closed(issue, journal, setting)
+      issue_updated(issue, journal, setting,
+                    color: Color::CLOSED,
+                    label_key: :label_kalvad_slack_issue_closed)
+    end
+
+    def wiki_created(page)
+      wiki_payload(page, label_key: :label_kalvad_slack_wiki_created)
+    end
+
+    def wiki_updated(page)
+      wiki_payload(page, label_key: :label_kalvad_slack_wiki_updated)
+    end
+
+    def news_created(news)
+      project = news.project
+      url = url_for_news(news)
+
+      attachment = {
+        color: Color::NEWS,
+        title: news.title,
+        title_link: url,
+        text: escape(news.summary.presence || news.description.to_s),
+        footer: escape(project.name),
+        ts: news.created_on.to_i
+      }
+
+      {
+        text: "[#{project_link(project)}] #{slack_link(url, escape(news.title))} " \
+              "#{l(:label_kalvad_slack_news_created)} #{escape(news.author&.name.to_s)}",
+        attachments: [attachment]
+      }
+    end
+
+    # ---- helpers ----
+
+    def wiki_payload(page, label_key:)
+      project = page.project
+      url = url_for_wiki(page)
+
+      attachment = {
+        color: Color::WIKI,
+        title: page.title,
+        title_link: url,
+        footer: escape(project.name),
+        ts: (page.updated_on || page.created_on).to_i
+      }
+
+      {
+        text: "[#{project_link(project)}] #{slack_link(url, escape(page.title))} " \
+              "#{l(label_key)} #{escape((page.content&.author || page.last_author)&.name.to_s)}",
+        attachments: [attachment]
+      }
+    end
+
+    def issue_fields(issue, setting)
+      fields = [
+        { title: l(:field_tracker),     value: escape(issue.tracker.name),  short: true },
+        { title: l(:field_status),      value: escape(issue.status.name),   short: true },
+        { title: l(:field_priority),    value: escape(issue.priority.name), short: true },
+        { title: l(:field_assigned_to), value: assignee_value(issue),       short: true },
+        { title: l(:field_author),      value: escape(issue.author.name),   short: true }
+      ]
+      if setting.display_watchers? && issue.watcher_users.any?
+        fields << {
+          title: l(:field_watcher),
+          value: escape(issue.watcher_users.map(&:name).join(', ')),
+          short: false
+        }
+      end
+      fields
+    end
+
+    def journal_fields(journal)
+      details = journal.visible_details(User.current)
+      details.filter_map { |detail| detail_field(journal, detail) }
+    end
+
+    def detail_field(_journal, detail)
+      case detail.property
+      when 'attr'
+        attr_field(detail)
+      when 'attachment'
+        attachment_field(detail)
+      when 'cf'
+        cf_field(detail)
+      end
+    end
+
+    def attr_field(detail)
+      label = attr_label(detail.prop_key)
+      old_v = attr_format(detail.prop_key, detail.old_value)
+      new_v = attr_format(detail.prop_key, detail.value)
+      { title: escape(label), value: format_change(old_v, new_v), short: true }
+    end
+
+    def attr_label(prop_key)
+      key = ATTR_LABELS[prop_key.to_s]
+      key ? l(key) : prop_key.to_s.humanize
+    end
+
     def attr_format(prop_key, value)
       return '' if value.nil?
 
@@ -193,7 +188,7 @@ module RedmineKalvadSlack
       finder ? finder.find_by(id: value)&.name.to_s : value.to_s
     end
 
-    def cf_field(_journal, detail)
+    def cf_field(detail)
       cf = CustomField.find_by(id: detail.prop_key)
       label = cf ? cf.name : detail.prop_key
       old_v = detail.old_value.to_s
@@ -215,26 +210,19 @@ module RedmineKalvadSlack
       elsif new_v.blank?
         "~#{escape(old_v)}~"
       else
-        "~#{escape(old_v)}~ → *#{escape(new_v)}*"
+        "~#{escape(old_v)}~ -> *#{escape(new_v)}*"
       end
     end
 
-    def note_text(journal, project)
+    def note_text(journal, setting)
       return nil if journal.notes.blank?
-      return nil if journal.private_notes? && !SettingsResolver.bool?(project, :post_private_notes)
+      return nil if journal.private_notes? && !setting.post_private_notes?
 
-      MentionMapper.transform(escape(journal.notes), project)
+      escape(journal.notes)
     end
 
     def journal_timestamp(journal)
       (journal.created_on || Time.current).to_i
-    end
-
-    def append_keyword_mentions!(attachment, text, project)
-      hits = MentionMapper.keyword_hits(text, project)
-      return if hits.empty?
-
-      attachment[:text] = [attachment[:text], hits.join(' ')].compact.join("\n")
     end
 
     def assignee_value(issue)

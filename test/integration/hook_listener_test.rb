@@ -8,21 +8,20 @@ class KalvadSlackHookListenerTest < Redmine::IntegrationTest
            :enabled_modules, :journals, :journal_details
 
   def setup
-    Setting.send('plugin_redmine_kalvad_slack=',
-                 'webhook_url' => 'https://hooks.slack.test/x',
-                 'channel' => '#redmine',
-                 'username' => 'Redmine',
-                 'enabled' => '1',
-                 'post_issue_created' => '1',
-                 'post_issue_updated' => '1',
-                 'post_issue_closed' => '1',
-                 'verify_ssl' => '1',
-                 'connect_timeout' => '3',
-                 'read_timeout' => '3')
+    KalvadSlackSetting.where(project_id: 1).destroy_all
+    KalvadSlackSetting.create!(
+      project_id: 1,
+      webhook_url: 'https://hooks.slack.test/x',
+      channel: '#redmine',
+      enabled: true,
+      post_issue_created: true,
+      post_issue_updated: true,
+      post_issue_closed: true
+    )
     @calls = []
     RedmineKalvadSlack::Notifier.singleton_class.alias_method :__orig_deliver, :deliver
-    RedmineKalvadSlack::Notifier.singleton_class.send(:define_method, :deliver) do |project:, payload:|
-      @calls << [project, payload]
+    RedmineKalvadSlack::Notifier.singleton_class.send(:define_method, :deliver) do |setting:, payload:|
+      @calls << [setting, payload]
     end
     RedmineKalvadSlack::Notifier.instance_variable_set(:@calls, @calls)
   end

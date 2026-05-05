@@ -13,44 +13,46 @@ module RedmineKalvadSlack
       private
 
       def send_kalvad_slack_create
-        return if project.nil?
-        return unless RedmineKalvadSlack::SettingsResolver.bool?(project, :enabled)
-        return unless RedmineKalvadSlack::SettingsResolver.bool?(project, :post_issue_created)
-        return if is_private? && !RedmineKalvadSlack::SettingsResolver.bool?(project, :post_private_issues)
+        setting = kalvad_slack_setting
+        return unless setting&.enabled?
+        return unless setting.post_issue_created?
+        return if is_private? && !setting.post_private_issues?
 
-        payload = RedmineKalvadSlack::PayloadBuilder.issue_created(self)
-        RedmineKalvadSlack::Notifier.deliver(project: project, payload: payload)
+        payload = RedmineKalvadSlack::PayloadBuilder.issue_created(self, setting)
+        RedmineKalvadSlack::Notifier.deliver(setting: setting, payload: payload)
       end
 
       def send_kalvad_slack_update
         return unless kalvad_slack_should_post_update?
 
-        payload = build_kalvad_slack_update_payload
+        setting = kalvad_slack_setting
+        payload = build_kalvad_slack_update_payload(setting)
         return if payload.nil?
 
-        RedmineKalvadSlack::Notifier.deliver(project: project, payload: payload)
+        RedmineKalvadSlack::Notifier.deliver(setting: setting, payload: payload)
       end
 
       def kalvad_slack_should_post_update?
-        return false if project.nil? || current_journal.nil?
-        return false unless RedmineKalvadSlack::SettingsResolver.bool?(project, :enabled)
-        return false if is_private? && !RedmineKalvadSlack::SettingsResolver.bool?(project, :post_private_issues)
-        return false if current_journal.private_notes? &&
-                        !RedmineKalvadSlack::SettingsResolver.bool?(project, :post_private_notes)
+        return false if current_journal.nil?
+
+        setting = kalvad_slack_setting
+        return false unless setting&.enabled?
+        return false if is_private? && !setting.post_private_issues?
+        return false if current_journal.private_notes? && !setting.post_private_notes?
 
         true
       end
 
-      def build_kalvad_slack_update_payload
+      def build_kalvad_slack_update_payload(setting)
         if kalvad_slack_status_closed_transition?
-          return nil unless RedmineKalvadSlack::SettingsResolver.bool?(project, :post_issue_closed)
+          return nil unless setting.post_issue_closed?
 
-          return RedmineKalvadSlack::PayloadBuilder.issue_closed(self, current_journal)
+          return RedmineKalvadSlack::PayloadBuilder.issue_closed(self, current_journal, setting)
         end
 
-        return nil unless RedmineKalvadSlack::SettingsResolver.bool?(project, :post_issue_updated)
+        return nil unless setting.post_issue_updated?
 
-        RedmineKalvadSlack::PayloadBuilder.issue_updated(self, current_journal)
+        RedmineKalvadSlack::PayloadBuilder.issue_updated(self, current_journal, setting)
       end
 
       def kalvad_slack_status_closed_transition?
@@ -59,6 +61,10 @@ module RedmineKalvadSlack
 
         new_status = IssueStatus.find_by(id: detail.value)
         new_status&.is_closed?
+      end
+
+      def kalvad_slack_setting
+        project&.kalvad_slack_setting
       end
     end
   end

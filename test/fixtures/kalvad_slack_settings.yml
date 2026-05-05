@@ -3,18 +3,18 @@ project_one_setting:
   project_id: 1
   webhook_url: https://hooks.slack.test/T000/B000/AAA
   channel: '#project-one'
-  enabled: 0
-  post_issue_created: 0
-  post_issue_updated: 0
-  post_issue_closed: 0
-  post_wiki_created: 0
-  post_wiki_updated: 0
-  post_news: 0
-  post_private_issues: 0
-  post_private_notes: 0
-  display_watchers: 0
-  display_description_on_create: 0
-  auto_mentions: 0
-  mention_keywords: ''
+  username: 'Redmine'
+  icon: ''
+  enabled: true
+  post_issue_created: true
+  post_issue_updated: true
+  post_issue_closed: true
+  post_wiki_created: false
+  post_wiki_updated: false
+  post_news: true
+  post_private_issues: false
+  post_private_notes: false
+  display_watchers: false
+  display_description_on_create: true
   created_at: 2026-01-01 00:00:00
   updated_at: 2026-01-01 00:00:00

@@ -18,12 +18,8 @@ class KalvadSlackSettingsController < ApplicationController
 
   def allowed_params
     params.require(:kalvad_slack_setting).permit(
-      :webhook_url, :channel, :enabled, :mention_keywords,
-      :post_issue_created, :post_issue_updated, :post_issue_closed,
-      :post_wiki_created, :post_wiki_updated, :post_news,
-      :post_private_issues, :post_private_notes,
-      :display_watchers, :display_description_on_create,
-      :auto_mentions
+      :webhook_url, :channel, :username, :icon,
+      *KalvadSlackSetting::BOOL_FIELDS
     )
   end
 end

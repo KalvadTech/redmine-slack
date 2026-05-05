@@ -3,43 +3,38 @@
 module RedmineKalvadSlack
   class Notifier
     SUCCESS_CLASSES = [Net::HTTPSuccess, Net::HTTPRedirection].freeze
-    DEFAULT_TIMEOUT = 3
+    OPEN_TIMEOUT = 3
+    READ_TIMEOUT = 3
 
-    def self.deliver(project:, payload:)
-      new(project, payload).deliver
+    def self.deliver(setting:, payload:)
+      new(setting, payload).deliver
     end
 
-    def initialize(project, payload)
-      @project = project
+    def initialize(setting, payload)
+      @setting = setting
       @payload = payload
     end
 
     def deliver
-      return unless @project
-      return unless SettingsResolver.bool?(@project, :enabled)
+      return if @setting.nil?
+      return unless @setting.deliverable?
 
-      url = SettingsResolver.webhook_url(@project)
-      ch  = SettingsResolver.channel(@project)
-      return if url.blank? || ch.blank? || ch == '-'
-
-      post(url, build_body(ch))
+      post(@setting.webhook_url, build_body)
     end
 
     private
 
-    def build_body(channel)
+    def build_body
       body = @payload.merge(
-        channel: channel,
-        username: SettingsResolver.username(@project),
+        channel: @setting.channel,
+        username: @setting.username.presence || 'Redmine',
         link_names: 1
       )
-      icon = SettingsResolver.icon(@project)
-      if icon.present?
-        if icon.start_with?(':')
-          body[:icon_emoji] = icon
-        elsif icon.start_with?('http')
-          body[:icon_url] = icon
-        end
+      icon = @setting.icon.to_s
+      if icon.start_with?(':')
+        body[:icon_emoji] = icon
+      elsif icon.start_with?('http')
+        body[:icon_url] = icon
       end
       body
     end
@@ -62,9 +57,8 @@ module RedmineKalvadSlack
     def build_http(uri)
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = uri.scheme == 'https'
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE unless SettingsResolver.global_bool?(:verify_ssl)
-      http.open_timeout = SettingsResolver.global_int(:connect_timeout, DEFAULT_TIMEOUT)
-      http.read_timeout = SettingsResolver.global_int(:read_timeout, DEFAULT_TIMEOUT)
+      http.open_timeout = OPEN_TIMEOUT
+      http.read_timeout = READ_TIMEOUT
       http
     end
   end

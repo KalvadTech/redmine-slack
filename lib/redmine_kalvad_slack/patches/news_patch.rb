@@ -12,12 +12,12 @@ module RedmineKalvadSlack
       private
 
       def send_kalvad_slack_create
-        return if project.nil?
-        return unless RedmineKalvadSlack::SettingsResolver.bool?(project, :enabled)
-        return unless RedmineKalvadSlack::SettingsResolver.bool?(project, :post_news)
+        setting = project&.kalvad_slack_setting
+        return unless setting&.enabled?
+        return unless setting.post_news?
 
-        RedmineKalvadSlack::Notifier.deliver(project: project,
-                                             payload: RedmineKalvadSlack::PayloadBuilder.news_created(self))
+        payload = RedmineKalvadSlack::PayloadBuilder.news_created(self)
+        RedmineKalvadSlack::Notifier.deliver(setting: setting, payload: payload)
       end
     end
   end

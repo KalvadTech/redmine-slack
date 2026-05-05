@@ -9,16 +9,20 @@ class KalvadSlackPayloadBuilderTest < RedmineKalvadSlack::TestCase
   def setup
     Setting.host_name = 'redmine.test'
     Setting.protocol = 'https'
-    Setting.send('plugin_redmine_kalvad_slack=',
-                 'webhook_url' => '', 'channel' => '',
-                 'auto_mentions' => '0', 'display_description_on_create' => '1',
-                 'display_watchers' => '0', 'mention_keywords' => '',
-                 'enabled' => '1')
+    @setting = KalvadSlackSetting.new(
+      project_id: 1,
+      webhook_url: 'https://x',
+      channel: '#x',
+      enabled: true,
+      display_description_on_create: true,
+      display_watchers: false,
+      post_private_notes: false
+    )
   end
 
   def test_issue_created_shape
     issue = Issue.find(1)
-    payload = RedmineKalvadSlack::PayloadBuilder.issue_created(issue)
+    payload = RedmineKalvadSlack::PayloadBuilder.issue_created(issue, @setting)
     assert_kind_of Hash, payload
     assert payload[:text].include?("##{issue.id}")
     att = payload[:attachments].first
@@ -33,7 +37,7 @@ class KalvadSlackPayloadBuilderTest < RedmineKalvadSlack::TestCase
   def test_issue_closed_uses_closed_color
     issue = Issue.find(1)
     journal = issue.journals.first || Journal.create!(journalized: issue, user: User.find(1))
-    payload = RedmineKalvadSlack::PayloadBuilder.issue_closed(issue, journal)
+    payload = RedmineKalvadSlack::PayloadBuilder.issue_closed(issue, journal, @setting)
     assert_equal RedmineKalvadSlack::Color::CLOSED, payload[:attachments].first[:color]
   end
 

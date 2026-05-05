@@ -13,23 +13,23 @@ module RedmineKalvadSlack
       private
 
       def send_kalvad_slack_create
-        kalvad_slack_dispatch(:post_wiki_created) do
+        deliver_kalvad_slack(:post_wiki_created?) do
           RedmineKalvadSlack::PayloadBuilder.wiki_created(self)
         end
       end
 
       def send_kalvad_slack_update
-        kalvad_slack_dispatch(:post_wiki_updated) do
+        deliver_kalvad_slack(:post_wiki_updated?) do
           RedmineKalvadSlack::PayloadBuilder.wiki_updated(self)
         end
       end
 
-      def kalvad_slack_dispatch(toggle)
-        return if project.nil?
-        return unless RedmineKalvadSlack::SettingsResolver.bool?(project, :enabled)
-        return unless RedmineKalvadSlack::SettingsResolver.bool?(project, toggle)
+      def deliver_kalvad_slack(toggle)
+        setting = project&.kalvad_slack_setting
+        return unless setting&.enabled?
+        return unless setting.public_send(toggle)
 
-        RedmineKalvadSlack::Notifier.deliver(project: project, payload: yield)
+        RedmineKalvadSlack::Notifier.deliver(setting: setting, payload: yield)
       end
     end
   end

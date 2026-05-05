@@ -6,22 +6,21 @@
 
 Slack incoming-webhook notifications for Redmine 6.x.
 
-A focused, opinionated rewrite of the Slack feature surface from
+A focused, opinionated rewrite inspired by
 [`alphanodes/redmine_messenger`](https://github.com/alphanodes/redmine_messenger).
-Slack only, Redmine 6 only, zero extra runtime dependencies, fire-and-forget
-delivery, with a per-project override tab that inherits from a global default.
+Slack only, Redmine 6 only, zero extra runtime gem dependencies, fire-and-forget
+delivery. Configuration is fully per-project: there is no global plugin
+settings page.
 
 ## Features
 
 - Posts on issue created, updated, closed, wiki page created or updated, news.
 - Color-coded Slack `attachments` payload (green, blue, grey, purple, yellow).
-- Global plugin settings plus a dedicated `Slack` tab in each project's settings.
-- Per-project tri-state overrides (`Inherit`, `On`, `Off`) for every toggle.
-- Cascade: project -> parent project chain -> global default.
-- Privacy gates: choose whether to post private issues and private notes.
-- Optional `@login` to Slack `<@U0123ABC>` conversion via a user custom field.
-- Keyword-based auto-mention tokens (e.g. `@channel`, `@here`, `<!subteam^XYZ>`).
-- Net::HTTP delivery with configurable timeouts and SSL verification.
+- Each project has its own `Settings -> Slack` tab. No global config.
+- Per-project webhook URL, channel, posted-as username, and icon.
+- Per-event boolean toggles, plus privacy gates for private issues and
+  private notes.
+- Net::HTTP delivery with hardcoded 3 second open and read timeouts.
 - English and French locales.
 
 ## Compatibility
@@ -86,22 +85,7 @@ rm -rf plugins/redmine_kalvad_slack
 
 ## Configuration
 
-### Global
-
-`Administration -> Plugins -> Redmine Kalvad Slack -> Configure`.
-
-| Setting | Notes |
-| --- | --- |
-| Slack webhook URL | Incoming webhook URL from Slack. |
-| Channel | e.g. `#redmine`. Use a single dash (`-`) at the project level to disable notifications for that project. |
-| Posted as | Display name shown in Slack. Defaults to `Redmine`. |
-| Icon | `:emoji:` code or HTTPS URL. |
-| Per-event toggles | One checkbox each for issue created, updated, closed, wiki created, wiki updated, news. |
-| Privacy gates | `Post private issues`, `Post private notes`. |
-| Auto-mention keywords | Comma-separated literal tokens (e.g. `@channel`, `@here`). Appended to the Slack message when found in issue text. |
-| User custom field with Slack member ID | A `UserCustomField` whose value holds each user's Slack member id (e.g. `U0123ABC`). |
-| Verify SSL | Default on. |
-| Connect / read timeout | Seconds. Default 3. |
+There is no global configuration. Each project sets its own Slack target.
 
 ### Permissions
 
@@ -112,23 +96,21 @@ per-project tab. Set under `Administration -> Roles and permissions`.
 
 `Project -> Settings -> Slack`.
 
-- Webhook URL and channel can be overridden.
-- Every toggle is tri-state: `Inherit`, `On`, `Off`.
-- Settings cascade: project -> parent project chain -> global default.
+| Field | Notes |
+| --- | --- |
+| Slack webhook URL | Incoming webhook URL from Slack. Required. |
+| Channel | e.g. `#redmine`. Required. Set to a single dash (`-`) to disable notifications without clearing the rest of the config. |
+| Posted as | Display name shown in Slack. Defaults to `Redmine`. |
+| Icon | `:emoji:` code or HTTPS URL. Optional. |
+| Enabled | Master toggle. Off disables all delivery for this project. |
+| Per-event toggles | Issue created, updated, closed, wiki created, wiki updated, news. |
+| Privacy gates | `Post private issues`, `Post private notes`. Off by default. |
+| Display watchers | Adds a watchers field on issue creation. |
+| Include description on creation | Adds the issue description as the attachment text. |
 
-### Slack mentions setup
-
-To convert `@redmine_login` in issue text to a Slack user mention:
-
-1. `Administration -> Custom fields -> Users -> New`. Format: Text. Name:
-   `Slack Member ID` (or any name).
-2. Note the field's numeric id, then paste it into
-   `Administration -> Plugins -> Redmine Kalvad Slack -> Configure ->
-   User custom field with Slack member ID`.
-3. Each user enters their own Slack member id (e.g. `U0123ABC`) under
-   `My account`. Slack member ids are visible in Slack under
-   `Profile -> View full profile -> three dots -> Copy member ID`.
-4. Make sure `Convert @logins to Slack mentions` is on.
+A project posts to Slack only if all of these are true: a `KalvadSlackSetting`
+row exists, `enabled` is on, the webhook URL is non-blank, and the channel is
+non-blank and not `-`.
 
 ## Events
 
@@ -143,9 +125,9 @@ To convert `@redmine_login` in issue text to a Slack user mention:
 
 ## Behavior notes
 
-- Delivery is fire-and-forget over `Net::HTTP` with a 3-second connect / read
-  timeout. Failures are logged at `warn` and swallowed: a Slack outage will
-  never raise out of a Redmine save.
+- Delivery is fire-and-forget over `Net::HTTP` with a hardcoded 3 second open
+  and read timeout. Failures are logged at `warn` and swallowed: a Slack
+  outage will never raise out of a Redmine save.
 - No retries. Slack incoming webhooks tolerate roughly one message per second
   per channel; bulk updates will burst.
 - No external gem dependencies.
@@ -154,12 +136,10 @@ To convert `@redmine_login` in issue text to a Slack user mention:
 ## Troubleshooting
 
 - Nothing is posted: check `log/production.log` for lines tagged
-  `[redmine_kalvad_slack]`.
+  `[redmine_kalvad_slack]`. Confirm the project's `Slack` tab has a webhook
+  URL, a channel that is not `-`, and `Enabled` ticked.
 - 4xx from Slack: usually a bad webhook URL or a channel the webhook is not
   authorized for.
-- A specific project goes silent: check the project's `Slack` tab. A channel
-  set to `-` disables the project, and the master `Enabled` toggle on `Off`
-  stops everything.
 
 ## Development
 

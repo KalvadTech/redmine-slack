@@ -1,14 +1,9 @@
 ---
 fr:
   permission_manage_kalvad_slack: Gérer Kalvad Slack
-  project_module_kalvad_slack: Kalvad Slack
 
   label_kalvad_slack: Slack
   label_kalvad_slack_toggles: Notifications
-  label_kalvad_slack_http: HTTP
-  label_kalvad_slack_inherit: Hériter
-  label_kalvad_slack_force_on: Activé
-  label_kalvad_slack_force_off: Désactivé
 
   label_kalvad_slack_issue_created: 'a créé la demande'
   label_kalvad_slack_issue_updated: 'a mis à jour la demande'
@@ -21,8 +16,6 @@ fr:
   setting_kalvad_slack_channel: Salon
   setting_kalvad_slack_username: Nom d''affichage
   setting_kalvad_slack_icon: Icône
-  setting_kalvad_slack_mention_keywords: Mots-clés de mention automatique
-  setting_kalvad_slack_member_id_custom_field: 'Champ personnalisé utilisateur avec ID Slack'
   setting_kalvad_slack_enabled: Activé
   setting_kalvad_slack_post_issue_created: Notifier à la création d''une demande
   setting_kalvad_slack_post_issue_updated: Notifier à la mise à jour d''une demande
@@ -34,14 +27,8 @@ fr:
   setting_kalvad_slack_post_private_notes: Notifier les notes privées
   setting_kalvad_slack_display_watchers: Afficher les observateurs
   setting_kalvad_slack_display_description_on_create: Inclure la description à la création
-  setting_kalvad_slack_auto_mentions: Convertir les @logins en mentions Slack
-  setting_kalvad_slack_verify_ssl: Vérifier le certificat SSL
-  setting_kalvad_slack_connect_timeout: Délai de connexion (secondes)
-  setting_kalvad_slack_read_timeout: Délai de lecture (secondes)
 
-  text_kalvad_slack_blank_inherits: 'Laisser vide pour hériter du projet parent ou des paramètres globaux.'
-  text_kalvad_slack_channel_dash_disables: 'Saisir un tiret (-) pour désactiver les notifications de ce projet.'
-  text_kalvad_slack_mention_keywords_help: 'Liste séparée par des virgules de tokens (ex : @channel, @here) ajoutés quand ils apparaissent.'
+  text_kalvad_slack_channel_required: 'ex : #redmine. Requis pour activer les notifications.'
   text_kalvad_slack_icon_help: 'Soit un code :emoji: soit une URL HTTPS.'
 
   activerecord:

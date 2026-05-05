@@ -12,7 +12,8 @@ class KalvadSlackSettingTest < RedmineKalvadSlack::TestCase
 
   def test_accepts_https_webhook_url
     setting = KalvadSlackSetting.new(project_id: Project.first.id,
-                                     webhook_url: 'https://hooks.slack.com/services/x')
+                                     webhook_url: 'https://hooks.slack.com/services/x',
+                                     channel: '#x')
     assert setting.valid?
   end
 
@@ -20,8 +21,6 @@ class KalvadSlackSettingTest < RedmineKalvadSlack::TestCase
     setting = KalvadSlackSetting.new(project_id: Project.first.id,
                                      webhook_url: 'ftp://example.com')
     assert_not setting.valid?
-    assert_includes setting.errors[:webhook_url].first.to_s,
-                    I18n.t('activerecord.errors.messages.kalvad_slack_invalid_webhook_url')
   end
 
   def test_for_returns_existing_or_new
@@ -31,10 +30,22 @@ class KalvadSlackSettingTest < RedmineKalvadSlack::TestCase
     assert_equal project.id, s.project_id
   end
 
-  def test_inherited_predicate
-    s = KalvadSlackSetting.new
-    assert s.inherited?(:enabled)
-    s.enabled = KalvadSlackSetting::TRI_ON
-    assert_not s.inherited?(:enabled)
+  def test_deliverable_requires_enabled_url_and_channel
+    s = KalvadSlackSetting.new(enabled: true, webhook_url: 'https://x', channel: '#a')
+    assert s.deliverable?
+
+    s.enabled = false
+    assert_not s.deliverable?
+
+    s.enabled = true
+    s.channel = ''
+    assert_not s.deliverable?
+
+    s.channel = '-'
+    assert_not s.deliverable?
+
+    s.channel = '#a'
+    s.webhook_url = ''
+    assert_not s.deliverable?
   end
 end

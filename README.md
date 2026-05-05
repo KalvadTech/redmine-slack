@@ -35,12 +35,43 @@ delivery, with a per-project override tab that inherits from a global default.
 
 ## Install
 
+> [!IMPORTANT]
+> The plugin directory under `plugins/` must be named `redmine_kalvad_slack`.
+> The repository slug on GitHub is `redmine-slack` (with a hyphen) but Redmine
+> requires the directory name to match the plugin id passed to
+> `Redmine::Plugin.register`, which is `redmine_kalvad_slack` (with
+> underscores). The clone, submodule, or symlink commands below all rename to
+> the correct path. If you have already cloned to a different name, run
+> `git mv plugins/<wrong-name> plugins/redmine_kalvad_slack` from inside your
+> Redmine checkout.
+
+### Option 1: clone
+
 ```bash
 cd <redmine>/plugins
 git clone https://github.com/KalvadTech/redmine-slack.git redmine_kalvad_slack
 cd ..
 bundle install
 bundle exec rake redmine:plugins:migrate RAILS_ENV=production NAME=redmine_kalvad_slack
+```
+
+### Option 2: submodule
+
+```bash
+cd <redmine>
+git submodule add https://github.com/KalvadTech/redmine-slack.git plugins/redmine_kalvad_slack
+git submodule update --init --recursive
+bundle install
+bundle exec rake redmine:plugins:migrate RAILS_ENV=production NAME=redmine_kalvad_slack
+```
+
+### Option 3: symlink (development)
+
+```bash
+ln -s <path-to-this-repo> <redmine>/plugins/redmine_kalvad_slack
+cd <redmine>
+bundle install
+bundle exec rake redmine:plugins:migrate RAILS_ENV=development NAME=redmine_kalvad_slack
 ```
 
 Restart Redmine.

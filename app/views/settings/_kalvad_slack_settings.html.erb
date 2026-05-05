@@ -1,0 +1,71 @@
+<div class="box tabular">
+  <p>
+    <label for="settings_webhook_url"><%= l(:setting_kalvad_slack_webhook_url) %></label>
+    <%= text_field_tag 'settings[webhook_url]', @settings['webhook_url'], size: 80 %>
+  </p>
+  <p>
+    <label for="settings_channel"><%= l(:setting_kalvad_slack_channel) %></label>
+    <%= text_field_tag 'settings[channel]', @settings['channel'], size: 40 %>
+  </p>
+  <p>
+    <label for="settings_username"><%= l(:setting_kalvad_slack_username) %></label>
+    <%= text_field_tag 'settings[username]', @settings['username'], size: 40 %>
+  </p>
+  <p>
+    <label for="settings_icon"><%= l(:setting_kalvad_slack_icon) %></label>
+    <%= text_field_tag 'settings[icon]', @settings['icon'], size: 40 %>
+    <em class="info"><%= l(:text_kalvad_slack_icon_help) %></em>
+  </p>
+  <p>
+    <label for="settings_mention_keywords"><%= l(:setting_kalvad_slack_mention_keywords) %></label>
+    <%= text_field_tag 'settings[mention_keywords]', @settings['mention_keywords'], size: 60 %>
+    <em class="info"><%= l(:text_kalvad_slack_mention_keywords_help) %></em>
+  </p>
+  <p>
+    <label for="settings_slack_member_id_custom_field_id"><%= l(:setting_kalvad_slack_member_id_custom_field) %></label>
+    <%= select_tag 'settings[slack_member_id_custom_field_id]',
+                   options_from_collection_for_select(
+                     UserCustomField.order(:name),
+                     :id, :name,
+                     @settings['slack_member_id_custom_field_id']
+                   ),
+                   include_blank: true %>
+  </p>
+</div>
+
+<fieldset class="box tabular">
+  <legend><%= l(:label_kalvad_slack_toggles) %></legend>
+  <% %w[
+       enabled
+       post_issue_created
+       post_issue_updated
+       post_issue_closed
+       post_wiki_created
+       post_wiki_updated
+       post_news
+       post_private_issues
+       post_private_notes
+       display_watchers
+       display_description_on_create
+       auto_mentions
+       verify_ssl
+     ].each do |key| %>
+    <p>
+      <label for="settings_<%= key %>"><%= l(:"setting_kalvad_slack_#{key}") %></label>
+      <%= hidden_field_tag "settings[#{key}]", '0' %>
+      <%= check_box_tag "settings[#{key}]", '1', @settings[key].to_s == '1' %>
+    </p>
+  <% end %>
+</fieldset>
+
+<fieldset class="box tabular">
+  <legend><%= l(:label_kalvad_slack_http) %></legend>
+  <p>
+    <label for="settings_connect_timeout"><%= l(:setting_kalvad_slack_connect_timeout) %></label>
+    <%= text_field_tag 'settings[connect_timeout]', @settings['connect_timeout'], size: 4 %>
+  </p>
+  <p>
+    <label for="settings_read_timeout"><%= l(:setting_kalvad_slack_read_timeout) %></label>
+    <%= text_field_tag 'settings[read_timeout]', @settings['read_timeout'], size: 4 %>
+  </p>
+</fieldset>

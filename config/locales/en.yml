@@ -1,0 +1,50 @@
+---
+en:
+  permission_manage_kalvad_slack: Manage Kalvad Slack
+  project_module_kalvad_slack: Kalvad Slack
+
+  label_kalvad_slack: Slack
+  label_kalvad_slack_toggles: Notifications
+  label_kalvad_slack_http: HTTP
+  label_kalvad_slack_inherit: Inherit
+  label_kalvad_slack_force_on: 'On'
+  label_kalvad_slack_force_off: 'Off'
+
+  label_kalvad_slack_issue_created: 'created issue'
+  label_kalvad_slack_issue_updated: 'updated issue'
+  label_kalvad_slack_issue_closed: 'closed issue'
+  label_kalvad_slack_wiki_created: 'created wiki page'
+  label_kalvad_slack_wiki_updated: 'updated wiki page'
+  label_kalvad_slack_news_created: 'posted news'
+
+  setting_kalvad_slack_webhook_url: Slack webhook URL
+  setting_kalvad_slack_channel: Channel
+  setting_kalvad_slack_username: Posted as
+  setting_kalvad_slack_icon: Icon
+  setting_kalvad_slack_mention_keywords: Auto-mention keywords
+  setting_kalvad_slack_member_id_custom_field: 'User custom field with Slack member ID'
+  setting_kalvad_slack_enabled: Enabled
+  setting_kalvad_slack_post_issue_created: Post on issue creation
+  setting_kalvad_slack_post_issue_updated: Post on issue update
+  setting_kalvad_slack_post_issue_closed: Post on issue closure
+  setting_kalvad_slack_post_wiki_created: Post on wiki page creation
+  setting_kalvad_slack_post_wiki_updated: Post on wiki page update
+  setting_kalvad_slack_post_news: Post on news
+  setting_kalvad_slack_post_private_issues: Post private issues
+  setting_kalvad_slack_post_private_notes: Post private notes
+  setting_kalvad_slack_display_watchers: Display watchers
+  setting_kalvad_slack_display_description_on_create: Include description on creation
+  setting_kalvad_slack_auto_mentions: Convert @logins to Slack mentions
+  setting_kalvad_slack_verify_ssl: Verify SSL certificate
+  setting_kalvad_slack_connect_timeout: Connect timeout (seconds)
+  setting_kalvad_slack_read_timeout: Read timeout (seconds)
+
+  text_kalvad_slack_blank_inherits: 'Leave blank to inherit from parent project or global settings.'
+  text_kalvad_slack_channel_dash_disables: 'Use a single dash (-) to disable notifications for this project.'
+  text_kalvad_slack_mention_keywords_help: 'Comma-separated literal tokens (e.g. @channel, @here) appended when found in issue text.'
+  text_kalvad_slack_icon_help: 'Either a :emoji: code or an HTTPS URL.'
+
+  activerecord:
+    errors:
+      messages:
+        kalvad_slack_invalid_webhook_url: 'must start with http:// or https://'

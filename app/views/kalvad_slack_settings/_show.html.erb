@@ -1,0 +1,39 @@
+<% setting = KalvadSlackSetting.for(@project) %>
+
+<%= labelled_form_for :kalvad_slack_setting,
+                       setting,
+                       url: project_kalvad_slack_setting_path(@project),
+                       html: { method: :put, id: 'kalvad-slack-setting-form' } do |f| %>
+  <div class="box tabular">
+    <p>
+      <%= f.text_field :webhook_url, size: 80,
+                       label: :setting_kalvad_slack_webhook_url %>
+      <em class="info"><%= l(:text_kalvad_slack_blank_inherits) %></em>
+    </p>
+    <p>
+      <%= f.text_field :channel, size: 40,
+                       label: :setting_kalvad_slack_channel %>
+      <em class="info"><%= l(:text_kalvad_slack_channel_dash_disables) %></em>
+    </p>
+    <p>
+      <%= f.text_field :mention_keywords, size: 60,
+                       label: :setting_kalvad_slack_mention_keywords %>
+      <em class="info"><%= l(:text_kalvad_slack_mention_keywords_help) %></em>
+    </p>
+  </div>
+
+  <fieldset class="box tabular">
+    <legend><%= l(:label_kalvad_slack_toggles) %></legend>
+    <% KalvadSlackSetting::TRI_FIELDS.each do |field| %>
+      <p>
+        <%= f.select field,
+                     [[l(:label_kalvad_slack_inherit), KalvadSlackSetting::TRI_INHERIT],
+                      [l(:label_kalvad_slack_force_off), KalvadSlackSetting::TRI_OFF],
+                      [l(:label_kalvad_slack_force_on), KalvadSlackSetting::TRI_ON]],
+                     {}, label: :"setting_kalvad_slack_#{field}" %>
+      </p>
+    <% end %>
+  </fieldset>
+
+  <p><%= submit_tag l(:button_save) %></p>
+<% end %>

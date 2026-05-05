@@ -1,0 +1,25 @@
+## Bundler
+/.bundle/
+/vendor/bundle/
+
+## Build / cache
+/tmp/
+/log/
+*.gem
+.rspec_status
+
+## Editors / OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+## Rubocop / coverage
+.rubocop_cache/
+/coverage/
+
+## Local environment overrides
+/.env
+/.env.local

@@ -52,7 +52,7 @@ module RedmineKalvadSlack
 
       {
         text: "[#{project_link(project)}] #{slack_link(url, "##{issue.id}")} " \
-              "#{l(:label_kalvad_slack_issue_created)} #{escape(issue.author.name)}",
+              "#{l(:label_kalvad_slack_issue_created, user: escape(issue.author.name))}",
         attachments: [attachment]
       }
     end
@@ -75,7 +75,7 @@ module RedmineKalvadSlack
 
       {
         text: "[#{project_link(project)}] #{slack_link(url, "##{issue.id}")} " \
-              "#{l(label_key)} #{escape(journal.user&.name.to_s)}",
+              "#{l(label_key, user: escape(journal.user&.name.to_s))}",
         attachments: [attachment]
       }
     end
@@ -109,7 +109,7 @@ module RedmineKalvadSlack
 
       {
         text: "[#{project_link(project)}] #{slack_link(url, escape(news.title))} " \
-              "#{l(:label_kalvad_slack_news_created)} #{escape(news.author&.name.to_s)}",
+              "#{l(:label_kalvad_slack_news_created, user: escape(news.author&.name.to_s))}",
         attachments: [attachment]
       }
     end
@@ -130,7 +130,7 @@ module RedmineKalvadSlack
 
       {
         text: "[#{project_link(project)}] #{slack_link(url, escape(page.title))} " \
-              "#{l(label_key)} #{escape((page.content&.author || page.last_author)&.name.to_s)}",
+              "#{l(label_key, user: escape((page.content&.author || page.last_author)&.name.to_s))}",
         attachments: [attachment]
       }
     end
@@ -266,8 +266,8 @@ module RedmineKalvadSlack
       text.to_s.gsub(/[&<>]/, SLACK_ESCAPES)
     end
 
-    def l(key)
-      I18n.t(key)
+    def l(key, **)
+      I18n.t(key, **)
     end
   end
 end

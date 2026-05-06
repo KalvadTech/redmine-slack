@@ -5,12 +5,12 @@ fr:
   label_kalvad_slack: Slack
   label_kalvad_slack_toggles: Notifications
 
-  label_kalvad_slack_issue_created: 'a créé la demande'
-  label_kalvad_slack_issue_updated: 'a mis à jour la demande'
-  label_kalvad_slack_issue_closed: 'a fermé la demande'
-  label_kalvad_slack_wiki_created: 'a créé la page wiki'
-  label_kalvad_slack_wiki_updated: 'a mis à jour la page wiki'
-  label_kalvad_slack_news_created: 'a publié l''annonce'
+  label_kalvad_slack_issue_created: 'demande créée par %{user}'
+  label_kalvad_slack_issue_updated: 'demande mise à jour par %{user}'
+  label_kalvad_slack_issue_closed: 'demande fermée par %{user}'
+  label_kalvad_slack_wiki_created: 'page wiki créée par %{user}'
+  label_kalvad_slack_wiki_updated: 'page wiki mise à jour par %{user}'
+  label_kalvad_slack_news_created: 'annonce publiée par %{user}'
 
   setting_kalvad_slack_webhook_url: URL du webhook Slack
   setting_kalvad_slack_channel: Salon

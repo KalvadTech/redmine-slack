@@ -155,6 +155,60 @@ bundle exec rake redmine:plugins:test NAME=redmine_kalvad_slack
 See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and PR conventions, and
 [AGENTS.md](AGENTS.md) for guidance when working with AI coding assistants.
 
+## Test with Docker
+
+A self-contained Redmine 6 + SQLite + plugin stack ships with the repo. Two
+options, depending on whether you want a static image or a live-reload dev
+loop.
+
+### docker compose (live-mount, recommended)
+
+```bash
+docker compose up
+```
+
+This pulls `redmine:6.0`, bind-mounts the repo as the plugin (read-only),
+and stores SQLite and uploaded files in named volumes so restarts keep the
+data. First boot runs `db:migrate` and `redmine:plugins:migrate`
+automatically. Browse http://localhost:3000 and log in as `admin` / `admin`
+(Redmine forces a password change on first login).
+
+Restart the container to pick up plugin code changes:
+
+```bash
+docker compose restart
+```
+
+Wipe the database and files:
+
+```bash
+docker compose down -v
+```
+
+### Standalone Dockerfile
+
+For a built-in image (no live mount):
+
+```bash
+docker build -t redmine-kalvad-slack:test .
+docker run --rm -p 3000:3000 redmine-kalvad-slack:test
+```
+
+The plugin source is baked into the image at build time. Useful for CI or
+one-shot smoke tests, not for iterating on plugin code.
+
+### Smoke test once the container is up
+
+1. Log in as `admin`, change the password.
+2. `Administration -> Roles and permissions`. Pick a role (e.g. Manager).
+   Tick `Manage Kalvad Slack`. Save.
+3. Create or open a project. Open `Settings`. The `Slack` tab appears as
+   the last tab.
+4. Paste an incoming-webhook URL, set a channel like `#test`, leave the
+   defaults, save.
+5. Create an issue. Watch the channel. A green attachment lands within a
+   couple of seconds.
+
 ## Security
 
 To report a vulnerability, see [SECURITY.md](SECURITY.md).

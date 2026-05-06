@@ -167,7 +167,7 @@ loop.
 docker compose up
 ```
 
-This pulls `redmine:6.0`, bind-mounts the repo as the plugin (read-only),
+This pulls `redmine:6.1`, bind-mounts the repo as the plugin (read-only),
 and stores SQLite and uploaded files in named volumes so restarts keep the
 data. First boot runs `db:migrate` and `redmine:plugins:migrate`
 automatically. Browse http://localhost:3000 and log in as `admin` / `admin`

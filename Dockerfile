@@ -7,7 +7,7 @@
 # Build:  docker build -t redmine-kalvad-slack:test .
 # Run:    docker run --rm -p 3000:3000 redmine-kalvad-slack:test
 # Browse: http://localhost:3000   (admin / admin on first login)
-ARG REDMINE_VERSION=6.0
+ARG REDMINE_VERSION=6.1
 FROM redmine:${REDMINE_VERSION}
 
 # Plugin id (= directory name under plugins/) must match Redmine::Plugin.register.

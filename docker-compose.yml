@@ -1,6 +1,6 @@
 # Local development harness for redmine_kalvad_slack.
 #
-# Boots an official redmine:6.0 image, bind-mounts this repository as the
+# Boots an official redmine:6.1 image, bind-mounts this repository as the
 # plugin (read-only), and persists SQLite + uploaded files in named volumes
 # so restarts keep the data.
 #
@@ -13,7 +13,7 @@
 
 services:
   redmine:
-    image: redmine:6.0
+    image: redmine:6.1
     ports:
       - "3000:3000"
     environment:

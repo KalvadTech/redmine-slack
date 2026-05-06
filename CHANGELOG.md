@@ -2,8 +2,10 @@
 
 ## 0.2.0
 
-Breaking. Configuration model rewritten.
+Breaking. Configuration model rewritten. Minimum Redmine bumped to 6.1.
 
+- Minimum Redmine version raised from 6.0.0 to 6.1.0. Test harness
+  (`Dockerfile`, `docker-compose.yml`) targets `redmine:6.1`.
 - Removed the global `Administration -> Plugins -> Configure` page entirely.
   All configuration now lives on each project's `Settings -> Slack` tab.
 - Per-project schema simplified: tri-state inherit / on / off booleans

@@ -2,7 +2,7 @@
 
 [![lint](https://github.com/KalvadTech/redmine-slack/actions/workflows/lint.yml/badge.svg)](https://github.com/KalvadTech/redmine-slack/actions/workflows/lint.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Redmine](https://img.shields.io/badge/Redmine-%E2%89%A56.0-c61b1b.svg)](https://www.redmine.org/)
+[![Redmine](https://img.shields.io/badge/Redmine-%E2%89%A56.1-c61b1b.svg)](https://www.redmine.org/)
 
 Slack incoming-webhook notifications for Redmine 6.x.
 
@@ -27,7 +27,7 @@ settings page.
 
 | Component | Version       |
 | --------- | ------------- |
-| Redmine   | >= 6.0.0      |
+| Redmine   | >= 6.1.0      |
 | Rails     | 7.2           |
 | Ruby      | >= 3.2        |
 | Slack     | Incoming webhooks (legacy `attachments` payload) |

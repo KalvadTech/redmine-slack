@@ -9,7 +9,7 @@ Redmine::Plugin.register :redmine_kalvad_slack do
   author_url 'https://kalvad.com'
   description 'Slack incoming-webhook notifications for Redmine 6.x.'
   version RedmineKalvadSlack::VERSION
-  requires_redmine version_or_higher: '6.0.0'
+  requires_redmine version_or_higher: '6.1.0'
 
   permission :manage_kalvad_slack,
              { kalvad_slack_settings: :update },

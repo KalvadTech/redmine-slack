@@ -12,7 +12,7 @@ itself only needs Ruby >= 3.2.
 # Clone Redmine somewhere
 git clone https://github.com/redmine/redmine.git ~/redmine
 cd ~/redmine
-git checkout 6.0-stable
+git checkout 6.1-stable
 
 # Symlink or clone this plugin into Redmine's plugins directory
 ln -s <path-to-this-repo> plugins/redmine_kalvad_slack
